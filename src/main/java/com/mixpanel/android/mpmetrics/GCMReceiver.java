@@ -2,6 +2,7 @@ package com.mixpanel.android.mpmetrics;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.graphics.BitmapFactory;
 import android.support.v4.app.NotificationCompat;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -14,8 +15,10 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Build;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
+import com.mixpanel.android.R;
 import com.mixpanel.android.mpmetrics.MixpanelAPI.InstanceProcessor;
 
 import java.util.HashMap;
@@ -287,16 +290,23 @@ public class GCMReceiver extends BroadcastReceiver {
 
     @SuppressLint("NewApi")
     @TargetApi(16)
-    private Notification makeNotificationSDK16OrHigher(Context context, PendingIntent intent, NotificationData notificationData) {
-        final Notification.Builder builder = new Notification.Builder(context).
-                setSmallIcon(notificationData.icon).
-                setTicker(notificationData.message).
-                setWhen(System.currentTimeMillis()).
-                setContentTitle(notificationData.title).
-                setContentText(notificationData.message).
-                setContentIntent(intent).
-                setStyle(new Notification.BigTextStyle().bigText(notificationData.message));
+    private Notification makeNotificationSDK16OrHigher(Context context, PendingIntent intent,
+        NotificationData notificationData) {
 
+        final Notification.Builder builder = new Notification.Builder(context).
+            setSmallIcon(notificationData.icon).
+            setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.launcher_icon)).
+            setTicker(notificationData.message).
+            setWhen(System.currentTimeMillis()).
+            setContentTitle(notificationData.title).
+            setContentText(notificationData.message).
+            setContentIntent(intent).
+            setStyle(new Notification.BigTextStyle().bigText(notificationData.message));
+
+        if (android.os.Build.VERSION.SDK_INT
+            >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            builder.setColor(ContextCompat.getColor(context, R.color.app_color));
+        }
         final Notification n = builder.build();
         n.flags |= Notification.FLAG_AUTO_CANCEL;
         return n;
